@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opening Uma Musume...</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            background-color: #fcfcfc; 
+        }
+        .loader { 
+            border: 4px solid #f3f3f3; 
+            border-top: 4px solid #ff80ab; 
+            border-radius: 50%; 
+            width: 40px; 
+            height: 40px; 
+            animation: spin 1s linear infinite; 
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        p { margin-top: 20px; color: #444; font-weight: 500; }
+        .btn { 
+            margin-top: 15px; 
+            padding: 12px 24px; 
+            background: #ff80ab; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 25px; 
+            font-weight: bold; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="loader"></div>
+    <p id="status">Launching Uma Musume...</p>
+    <a id="fallback-btn" class="btn" style="display:none;">Download from Store</a>
+
+    <script>
+        const appUri = "com.cygames.umamusume://";
+        const iosStore = "https://apps.apple.com/us/app/umamusume-pretty-derby/id6480433538";
+        const androidStore = "https://play.google.com/store/apps/details?id=com.cygames.umamusume&hl=en_GB";
+
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const isAndroid = /android/i.test(userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+
+        function redirect() {
+            const start = Date.now();
+            
+            // Attempt to open the app via Deep Link
+            window.location.href = appUri;
+
+            // Fallback mechanism: If the app doesn't open within 2.5s, redirect to the store
+            setTimeout(function() {
+                // If the user is still on this page (did not switch to the app)
+                if (Date.now() - start < 3000) {
+                    if (isIOS) {
+                        window.location.href = iosStore;
+                    } else if (isAndroid) {
+                        window.location.href = androidStore;
+                    } else {
+                        document.getElementById('status').innerText = "Please open this link on your mobile device.";
+                        document.getElementById('fallback-btn').style.display = "block";
+                        document.getElementById('fallback-btn').href = androidStore;
+                    }
+                }
+            }, 2500);
+        }
+
+        // Execute on load
+        redirect();
+
+        // Clear timeout if the browser loses focus (meaning the app successfully opened)
+        window.onblur = function() {
+            clearTimeout();
+        };
+    </script>
+</body>
+</html>
