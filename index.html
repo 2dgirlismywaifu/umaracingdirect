@@ -44,44 +44,20 @@
     <a id="fallback-btn" class="btn" style="display:none;">Download from Store</a>
 
     <script>
+        // Use window.location.replace to avoid back-button loops
         const appUri = "com.cygames.umamusume://";
-        const iosStore = "https://apps.apple.com/us/app/umamusume-pretty-derby/id6480433538";
-        const androidStore = "https://play.google.com/store/apps/details?id=com.cygames.umamusume&hl=en_GB";
+        const iosStore = "https://apps.apple.com/us/app/id6480433538";
+        const androidStore = "https://play.google.com/store/apps/details?id=com.cygames.umamusume";
 
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        const isAndroid = /android/i.test(userAgent);
-        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+        // Try to launch the app immediately
+        window.location.replace(appUri);
 
-        function redirect() {
-            const start = Date.now();
-            
-            // Attempt to open the app via Deep Link
-            window.location.href = appUri;
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-            // Fallback mechanism: If the app doesn't open within 2.5s, redirect to the store
-            setTimeout(function() {
-                // If the user is still on this page (did not switch to the app)
-                if (Date.now() - start < 3000) {
-                    if (isIOS) {
-                        window.location.href = iosStore;
-                    } else if (isAndroid) {
-                        window.location.href = androidStore;
-                    } else {
-                        document.getElementById('status').innerText = "Please open this link on your mobile device.";
-                        document.getElementById('fallback-btn').style.display = "block";
-                        document.getElementById('fallback-btn').href = androidStore;
-                    }
-                }
-            }, 2500);
-        }
-
-        // Execute on load
-        redirect();
-
-        // Clear timeout if the browser loses focus (meaning the app successfully opened)
-        window.onblur = function() {
-            clearTimeout();
-        };
+        // Fast fallback if app is not installed
+        setTimeout(function() {
+            window.location.replace(isIOS ? iosStore : androidStore);
+        }, 1500); // 1.5 seconds is enough for the "Open in App" prompt
     </script>
 </body>
 </html>
